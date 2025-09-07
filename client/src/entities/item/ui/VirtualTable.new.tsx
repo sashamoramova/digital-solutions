@@ -83,7 +83,7 @@ export const VirtualTable = ({ pageSize = 20 }: VirtualTableProps) => {
         if (pageToLoad > currentPage && !loading && items.length < totalItems) {
             loadItems(pageToLoad);
         }
-    }, [rowVirtualizer.getVirtualItems(), currentPage, loading, items.length, totalItems]);
+    }, [rowVirtualizer.getVirtualItems(), currentPage, loading, items.length, totalItems, pageSize]);
 
     const toggleItemSelection = useCallback((itemId: number) => {
         setSelectedItems(prev => {
@@ -95,14 +95,6 @@ export const VirtualTable = ({ pageSize = 20 }: VirtualTableProps) => {
             }
             return newSet;
         });
-    }, []);
-
-    const handleSelectAll = useCallback(() => {
-        setSelectedItems(new Set(filteredItems.map(item => item.id)));
-    }, [filteredItems]);
-
-    const handleClearSelection = useCallback(() => {
-        setSelectedItems(new Set());
     }, []);
 
     const handleSelectAll = useCallback(() => {
@@ -177,56 +169,6 @@ export const VirtualTable = ({ pageSize = 20 }: VirtualTableProps) => {
                                         Загрузка...
                                     </div>
                                 )}
-                            </div>
-                        );
-                    })}
-                </div>
-                    className={styles.searchInput}
-                    placeholder="Поиск..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <div className={styles.info}>
-                    Выбрано: {selectedItems.size} из {filteredItems.length}
-                </div>
-            </div>
-            <div ref={parentRef} className={styles.container}>
-                <div
-                    style={{
-                        height: `${rowVirtualizer.getTotalSize()}px`,
-                        width: '100%',
-                        position: 'relative'
-                    }}
-                >
-                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                        const item = filteredItems[virtualRow.index];
-                        return (
-                            <div
-                                key={virtualRow.index}
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: `${virtualRow.size}px`,
-                                    transform: `translateY(${virtualRow.start}px)`
-                                }}
-                                className={styles.row}
-                            >
-                                {item ? (
-                                    <>
-                                        <input 
-                                            type="checkbox"
-                                            checked={selectedItems.has(item.id)}
-                                            onChange={() => toggleItemSelection(item.id)}
-                                        />
-                                        <span>#{item.value}</span>
-                                    </>
-                                ) : loading ? (
-                                    <div className={styles.loadingRow}>
-                                        Загрузка...
-                                    </div>
-                                ) : null}
                             </div>
                         );
                     })}
