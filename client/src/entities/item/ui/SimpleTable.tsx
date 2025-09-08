@@ -24,7 +24,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         if (loading) return;
         
         try {
-            console.log('Loading items for page:', page);
+            // console.log('Loading items for page:', page);
             setLoading(true);
             const [itemsResponse, stateResponse] = await Promise.all([
                 itemsApi.getItems({ page, limit: pageSize, term: searchTerm }),
@@ -37,9 +37,9 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
                 // Применяем сохраненный порядок и загружаем выбранные элементы
                 if (stateResponse?.data?.data) {
                     // Обновляем выбранные элементы
-                    console.log('Loaded state:', stateResponse.data.data);
+                    // console.log('Loaded state:', stateResponse.data.data);
                     if (stateResponse.data.data.selected) {
-                        console.log('Setting selected items:', stateResponse.data.data.selected);
+                        // console.log('Setting selected items:', stateResponse.data.data.selected);
                         setSelectedItems(new Set(stateResponse.data.data.selected));
                     }
                     
@@ -105,7 +105,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
             if (scrollHeight - scrollTop - clientHeight < 100) {
                 // И есть ещё элементы для загрузки
                 if (items.length < totalItems) {
-                    console.log('Loading more items...');
+                    // console.log('Loading more items...');
                     loadItems(currentPage + 1);
                 }
             }
@@ -135,7 +135,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
             
             // Сохраняем выбранные элементы на сервере сразу после обновления состояния
             const selectedArray = Array.from(newSet);  // Используем новое состояние
-            console.log('Saving selected items:', selectedArray);
+            // console.log('Saving selected items:', selectedArray);
             itemsApi.saveSelected(selectedArray).catch(error => {
                 console.error('Failed to save selected items:', error);
             });
@@ -149,7 +149,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         setSelectedItems(newSelected);
         try {
             await itemsApi.saveSelected(Array.from(newSelected));
-            console.log('Saved all selected items');
+            // console.log('Saved all selected items');
         } catch (error) {
             console.error('Failed to save all selected items:', error);
         }
@@ -159,7 +159,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         setSelectedItems(new Set());
         try {
             await itemsApi.saveSelected([]);
-            console.log('Cleared selected items');
+            // console.log('Cleared selected items');
         } catch (error) {
             console.error('Failed to clear selected items:', error);
         }
@@ -167,7 +167,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
 
     // Обработчик перетаскивания
     const handleDragEnd = async (result: DropResult) => {
-        console.log('Drag ended:', result); // Отладочный вывод
+        // console.log('Drag ended:', result); 
 
         if (!result.destination) return;
 
@@ -195,7 +195,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         // Сохраняем новый порядок на сервере
         try {
             await itemsApi.saveOrder(newItems.map(item => item.id));
-            console.log('Order saved successfully'); // Отладочный вывод
+            // console.log('Order saved successfully'); 
         } catch (error) {
             console.error('Failed to save order:', error);
         }
