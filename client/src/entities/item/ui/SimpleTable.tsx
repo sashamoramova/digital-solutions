@@ -37,7 +37,9 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
                 // Применяем сохраненный порядок и загружаем выбранные элементы
                 if (stateResponse?.data?.data) {
                     // Обновляем выбранные элементы
+                    console.log('Loaded state:', stateResponse.data.data);
                     if (stateResponse.data.data.selected) {
+                        console.log('Setting selected items:', stateResponse.data.data.selected);
                         setSelectedItems(new Set(stateResponse.data.data.selected));
                     }
                     
@@ -122,7 +124,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         item.value.toString().includes(searchTerm)
     );
 
-    const toggleItemSelection = useCallback((itemId: number) => {
+    const toggleItemSelection = useCallback(async (itemId: number) => {
         setSelectedItems(prev => {
             const newSet = new Set(prev);
             if (newSet.has(itemId)) {
@@ -130,16 +132,37 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
             } else {
                 newSet.add(itemId);
             }
+            
+            // Сохраняем выбранные элементы на сервере сразу после обновления состояния
+            const selectedArray = Array.from(newSet);  // Используем новое состояние
+            console.log('Saving selected items:', selectedArray);
+            itemsApi.saveSelected(selectedArray).catch(error => {
+                console.error('Failed to save selected items:', error);
+            });
+            
             return newSet;
         });
     }, []);
 
-    const handleSelectAll = useCallback(() => {
-        setSelectedItems(new Set(filteredItems.map(item => item.id)));
+    const handleSelectAll = useCallback(async () => {
+        const newSelected = new Set(filteredItems.map(item => item.id));
+        setSelectedItems(newSelected);
+        try {
+            await itemsApi.saveSelected(Array.from(newSelected));
+            console.log('Saved all selected items');
+        } catch (error) {
+            console.error('Failed to save all selected items:', error);
+        }
     }, [filteredItems]);
 
-    const handleClearSelection = useCallback(() => {
+    const handleClearSelection = useCallback(async () => {
         setSelectedItems(new Set());
+        try {
+            await itemsApi.saveSelected([]);
+            console.log('Cleared selected items');
+        } catch (error) {
+            console.error('Failed to clear selected items:', error);
+        }
     }, []);
 
     // Обработчик перетаскивания
