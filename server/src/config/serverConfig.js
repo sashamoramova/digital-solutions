@@ -17,3 +17,6 @@ const serverConfig = (app) => {
 };
 
 module.exports = serverConfig;
+
+
+//обновление переменных окружения
