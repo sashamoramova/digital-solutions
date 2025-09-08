@@ -123,6 +123,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
     );
 
     const toggleItemSelection = useCallback((itemId: number) => {
+        console.log('Toggle selection for item:', itemId);
         setSelectedItems(prev => {
             const newSet = new Set(prev);
             if (newSet.has(itemId)) {
@@ -133,12 +134,15 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
             
             // Сохраняем выбранные элементы на сервере
             const selectedArray = Array.from(newSet);
+            console.log('Saving selected items:', selectedArray);
             itemsApi.saveSelected(selectedArray)
                 .then(() => {
+                    console.log('Successfully saved selected items');
                     // После успешного сохранения обновляем состояние с сервера
                     return itemsApi.getState();
                 })
                 .then(response => {
+                    console.log('Got state after saving:', response?.data?.data);
                     if (response?.data?.data?.selected) {
                         setSelectedItems(new Set(response.data.data.selected));
                     }

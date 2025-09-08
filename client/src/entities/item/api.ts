@@ -33,9 +33,12 @@ export const itemsApi = {
 
     // Сохранение выбранных элементов
     saveSelected: async (selected: number[]) => {
+        console.log('Sending saveSelected request to:', `${API_URL}/items/selected`);
+        console.log('With data:', { selected });
         const response = await axios.post<StateResponse>(`${API_URL}/items/selected`, {
             selected
         } as SaveSelectedRequest);
+        console.log('SaveSelected response:', response.data);
         return {
             data: response.data,
             status: response.status

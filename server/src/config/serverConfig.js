@@ -7,7 +7,10 @@ const path = require("path");
 const serverConfig = (app) => {
   app.use(cors({
     origin: ["https://digital-solutions-frontend-dydjh75s1-sashamoramovas-projects.vercel.app", "https://digital-solutions-frontend-orcin.vercel.app", "http://localhost:5173", "https://digital-solutions-production.up.railway.app"],
-    credentials: true
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
   }));
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
