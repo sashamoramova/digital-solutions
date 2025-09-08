@@ -5,9 +5,8 @@ const removeHTTPHeader = require("../middleware/removeHeader");
 const path = require("path");
 
 const serverConfig = (app) => {
-  // app.use(cors());
   app.use(cors({
-    origin: "https://digital-solutions-frontend-dydjh75s1-sashamoramovas-projects.vercel.app",
+    origin: ["https://digital-solutions-frontend-dydjh75s1-sashamoramovas-projects.vercel.app", "http://localhost:5173"],
     credentials: true
   }));
   app.use(express.urlencoded({ extended: true }));
