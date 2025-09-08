@@ -36,14 +36,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
                 
                 // Применяем сохраненный порядок и загружаем выбранные элементы
                 if (stateResponse?.data?.data) {
-                    // Обновляем выбранные элементы
-                    // console.log('Loaded state:', stateResponse.data.data);
-                    if (stateResponse.data.data.selected) {
-                        // console.log('Setting selected items:', stateResponse.data.data.selected);
-                        setSelectedItems(new Set(stateResponse.data.data.selected));
-                    }
-                    
-                    // Применяем порядок сортировки
+                    // Сначала применяем порядок сортировки
                     if (page === 1 && stateResponse.data.data.order && stateResponse.data.data.order.length > 0) {
                         const orderMap = new Map(stateResponse.data.data.order.map((id: number, index: number) => [id, index]));
                         newItems = [...newItems].sort((a, b) => {
@@ -51,6 +44,11 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
                             const orderB = orderMap.get(b.id) ?? Number.MAX_VALUE;
                             return orderA - orderB;
                         });
+                    }
+
+                    // Затем обновляем выбранные элементы
+                    if (stateResponse.data.data.selected) {
+                        setSelectedItems(new Set(stateResponse.data.data.selected));
                     }
                 }
 
@@ -124,7 +122,7 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         item.value.toString().includes(searchTerm)
     );
 
-    const toggleItemSelection = useCallback(async (itemId: number) => {
+    const toggleItemSelection = useCallback((itemId: number) => {
         setSelectedItems(prev => {
             const newSet = new Set(prev);
             if (newSet.has(itemId)) {
@@ -133,12 +131,21 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
                 newSet.add(itemId);
             }
             
-            // Сохраняем выбранные элементы на сервере сразу после обновления состояния
-            const selectedArray = Array.from(newSet);  // Используем новое состояние
-            // console.log('Saving selected items:', selectedArray);
-            itemsApi.saveSelected(selectedArray).catch(error => {
-                console.error('Failed to save selected items:', error);
-            });
+            // Сохраняем выбранные элементы на сервере
+            const selectedArray = Array.from(newSet);
+            itemsApi.saveSelected(selectedArray)
+                .then(() => {
+                    // После успешного сохранения обновляем состояние с сервера
+                    return itemsApi.getState();
+                })
+                .then(response => {
+                    if (response?.data?.data?.selected) {
+                        setSelectedItems(new Set(response.data.data.selected));
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to save/update selected items:', error);
+                });
             
             return newSet;
         });
