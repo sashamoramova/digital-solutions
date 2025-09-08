@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { type Item, type ItemsResponse, type StateResponse, type SaveOrderRequest, type SaveSelectedRequest } from '@/shared/types/item';
+import { type ItemsResponse, type StateResponse, type SaveOrderRequest, type SaveSelectedRequest } from '@/shared/types/item';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
 
 export const itemsApi = {
     // Получение списка элементов с пагинацией и поиском
