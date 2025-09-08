@@ -10,6 +10,7 @@
     color: #1a1a1a;
 }
 
+/* Header section */
 .header {
     display: flex;
     justify-content: space-between;
@@ -35,6 +36,7 @@
     gap: 8px;
 }
 
+/* Buttons */
 .button {
     padding: 8px 16px;
     border: none;
@@ -54,12 +56,14 @@
     color: white;
 }
 
+/* Table info */
 .info {
     font-size: 14px;
     color: #5f6368;
     margin-bottom: 16px;
 }
 
+/* Table container */
 .tableContainer {
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -68,34 +72,57 @@
     background-color: white;
 }
 
+/* Table rows */
 .row {
     display: flex;
     align-items: center;
     padding: 8px 16px;
+    background-color: white;
     border-bottom: 1px solid #eee;
     min-height: 35px;
+    user-select: none;
 }
 
 .row:hover {
     background-color: #f8f9fa;
 }
 
+.row.isDragging {
+    background-color: #e8f0fe;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Checkbox */
 .checkbox {
     margin-right: 12px;
     width: 18px;
     height: 18px;
 }
 
+/* Drag handle */
 .dragHandle {
     margin-left: auto;
     cursor: grab;
+    padding: 8px;
     color: #5f6368;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
 }
 
+.dragHandle:active {
+    cursor: grabbing;
+}
+
+/* Loading state */
 .loadingRow {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    padding: 8px 16px;
     color: #5f6368;
+    background-color: #fafafa;
 }

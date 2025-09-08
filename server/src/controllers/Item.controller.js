@@ -10,7 +10,11 @@ class ItemController {
     async getItems(req, res) {
         try {
             const { page = 1, search = '', limit = 20 } = req.query;
-            const items = await this.itemService.getItems(parseInt(page), search, parseInt(limit));
+            if (isNaN(parseInt(page)) || isNaN(parseInt(limit))) {
+                return res.status(400).json(formatResponse(400, 'Invalid page or limit parameter', null));
+            }
+            
+            const items = await this.itemService.getItems(page, search, limit);
             res.json(formatResponse(200, 'Items retrieved successfully', items));
         } catch (error) {
             res.status(500).json(formatResponse(500, 'Internal server error', null, error.message));
@@ -21,9 +25,16 @@ class ItemController {
     async saveOrder(req, res) {
         try {
             const { order } = req.body;
-            await this.itemService.saveOrder(order);
-            res.json(formatResponse(200, 'Order saved successfully'));
+            if (!Array.isArray(order)) {
+                return res.status(400).json(formatResponse(400, 'Order must be an array', null));
+            }
+            
+            const state = await this.itemService.saveOrder(order);
+            res.json(formatResponse(200, 'Order saved successfully', state));
         } catch (error) {
+            if (error.message.includes('Invalid item IDs')) {
+                return res.status(400).json(formatResponse(400, error.message, null));
+            }
             res.status(500).json(formatResponse(500, 'Internal server error', null, error.message));
         }
     }
@@ -32,9 +43,16 @@ class ItemController {
     async saveSelected(req, res) {
         try {
             const { selected } = req.body;
-            await this.itemService.saveSelected(selected);
-            res.json(formatResponse(200, 'Selected items saved successfully'));
+            if (!Array.isArray(selected)) {
+                return res.status(400).json(formatResponse(400, 'Selected must be an array', null));
+            }
+            
+            const state = await this.itemService.saveSelected(selected);
+            res.json(formatResponse(200, 'Selected items saved successfully', state));
         } catch (error) {
+            if (error.message.includes('Invalid item IDs')) {
+                return res.status(400).json(formatResponse(400, error.message, null));
+            }
             res.status(500).json(formatResponse(500, 'Internal server error', null, error.message));
         }
     }

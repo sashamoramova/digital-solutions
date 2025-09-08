@@ -5,15 +5,18 @@ const API_URL = 'http://localhost:3000/api';
 
 export const itemsApi = {
     // Получение списка элементов с пагинацией и поиском
-    getItems: async (page: number = 1, limit: number = 20, search: string = '') => {
+    getItems: async (options: { page: number, limit?: number, term?: string }) => {
         const response = await axios.get<ItemsResponse>(`${API_URL}/items`, {
             params: {
-                page,
-                limit,
-                search
+                page: options.page,
+                limit: options.limit || 20,
+                search: options.term || ''
             }
         });
-        return response.data;
+        return {
+            data: response.data,
+            status: response.status
+        };
     },
 
     // Сохранение порядка сортировки
@@ -21,7 +24,10 @@ export const itemsApi = {
         const response = await axios.post<StateResponse>(`${API_URL}/items/order`, {
             order
         } as SaveOrderRequest);
-        return response.data;
+        return {
+            data: response.data,
+            status: response.status
+        };
     },
 
     // Сохранение выбранных элементов
@@ -29,12 +35,18 @@ export const itemsApi = {
         const response = await axios.post<StateResponse>(`${API_URL}/items/selected`, {
             selected
         } as SaveSelectedRequest);
-        return response.data;
+        return {
+            data: response.data,
+            status: response.status
+        };
     },
 
     // Получение текущего состояния
     getState: async () => {
         const response = await axios.get<StateResponse>(`${API_URL}/items/state`);
-        return response.data;
+        return {
+            data: response.data,
+            status: response.status
+        };
     }
 };
