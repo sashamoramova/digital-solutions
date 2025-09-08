@@ -152,21 +152,22 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
     }, []);
 
     const handleSelectAll = useCallback(async () => {
-        const newSelected = new Set(filteredItems.map(item => item.id));
-        setSelectedItems(newSelected);
         try {
-            await itemsApi.saveSelected(Array.from(newSelected));
-            // console.log('Saved all selected items');
+            const response = await itemsApi.saveSelected(filteredItems.map(item => item.id));
+            if (response.data?.data?.selected) {
+                setSelectedItems(new Set(response.data.data.selected));
+            }
         } catch (error) {
             console.error('Failed to save all selected items:', error);
         }
     }, [filteredItems]);
 
     const handleClearSelection = useCallback(async () => {
-        setSelectedItems(new Set());
         try {
-            await itemsApi.saveSelected([]);
-            // console.log('Cleared selected items');
+            const response = await itemsApi.saveSelected([]);
+            if (response.data?.data?.selected) {
+                setSelectedItems(new Set(response.data.data.selected));
+            }
         } catch (error) {
             console.error('Failed to clear selected items:', error);
         }
@@ -174,8 +175,6 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
 
     // Обработчик перетаскивания
     const handleDragEnd = async (result: DropResult) => {
-        // console.log('Drag ended:', result); 
-
         if (!result.destination) return;
 
         const sourceIndex = result.source.index;
@@ -188,7 +187,6 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         // Обновляем состояние
         setItems(prevItems => {
             const itemsToUpdate = [...prevItems];
-            // Находим и обновляем позиции только для измененных элементов
             newItems.forEach((item, index) => {
                 const originalIndex = itemsToUpdate.findIndex(i => i.id === item.id);
                 if (originalIndex !== -1) {
@@ -199,10 +197,15 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
             return itemsToUpdate;
         });
 
-        // Сохраняем новый порядок на сервере
+        // Сохраняем новый порядок и получаем полное состояние
         try {
-            await itemsApi.saveOrder(newItems.map(item => item.id));
-            // console.log('Order saved successfully'); 
+            const response = await itemsApi.saveOrder(newItems.map(item => item.id));
+            if (response.data?.data) {
+                // Обновляем выбранные элементы из состояния сервера
+                if (response.data.data.selected) {
+                    setSelectedItems(new Set(response.data.data.selected));
+                }
+            }
         } catch (error) {
             console.error('Failed to save order:', error);
         }
