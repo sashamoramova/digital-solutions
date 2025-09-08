@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { type ItemsResponse, type StateResponse, type SaveOrderRequest, type SaveSelectedRequest } from '@/shared/types/item';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = 'https://digital-solutions-production.up.railway.app/api';
 
 
 export const itemsApi = {
