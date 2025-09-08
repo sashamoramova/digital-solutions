@@ -28,20 +28,28 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
             setLoading(true);
             const [itemsResponse, stateResponse] = await Promise.all([
                 itemsApi.getItems({ page, limit: pageSize, term: searchTerm }),
-                page === 1 ? itemsApi.getState() : Promise.resolve(null)
+                itemsApi.getState() // Теперь загружаем состояние при каждой загрузке страницы
             ]);
 
             if (itemsResponse.data?.data) {
                 let newItems = itemsResponse.data.data.items;
                 
-                // Применяем сохраненный порядок если это первая страница и есть сохраненный порядок
-                if (page === 1 && stateResponse?.data?.data?.order && stateResponse.data.data.order.length > 0) {
-                    const orderMap = new Map(stateResponse.data.data.order.map((id: number, index: number) => [id, index]));
-                    newItems = [...newItems].sort((a, b) => {
-                        const orderA = orderMap.get(a.id) ?? Number.MAX_VALUE;
-                        const orderB = orderMap.get(b.id) ?? Number.MAX_VALUE;
-                        return orderA - orderB;
-                    });
+                // Применяем сохраненный порядок и загружаем выбранные элементы
+                if (stateResponse?.data?.data) {
+                    // Обновляем выбранные элементы
+                    if (stateResponse.data.data.selected) {
+                        setSelectedItems(new Set(stateResponse.data.data.selected));
+                    }
+                    
+                    // Применяем порядок сортировки
+                    if (page === 1 && stateResponse.data.data.order && stateResponse.data.data.order.length > 0) {
+                        const orderMap = new Map(stateResponse.data.data.order.map((id: number, index: number) => [id, index]));
+                        newItems = [...newItems].sort((a, b) => {
+                            const orderA = orderMap.get(a.id) ?? Number.MAX_VALUE;
+                            const orderB = orderMap.get(b.id) ?? Number.MAX_VALUE;
+                            return orderA - orderB;
+                        });
+                    }
                 }
 
                 setItems(prev => page === 1 ? newItems : [...prev, ...newItems]);
