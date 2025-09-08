@@ -122,37 +122,43 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         item.value.toString().includes(searchTerm)
     );
 
-    const toggleItemSelection = useCallback((itemId: number) => {
-        console.log('Toggle selection for item:', itemId);
+    const toggleItemSelection = useCallback(async (itemId: number) => {
+        console.log('=== Starting toggleItemSelection for item:', itemId);
+        
+        let selectedArray: number[] = [];
+        
+        // Обновляем локальное состояние
         setSelectedItems(prev => {
             const newSet = new Set(prev);
             if (newSet.has(itemId)) {
+                console.log('Removing item from selection:', itemId);
                 newSet.delete(itemId);
             } else {
+                console.log('Adding item to selection:', itemId);
                 newSet.add(itemId);
             }
-            
-            // Сохраняем выбранные элементы на сервере
-            const selectedArray = Array.from(newSet);
-            console.log('Saving selected items:', selectedArray);
-            itemsApi.saveSelected(selectedArray)
-                .then(() => {
-                    console.log('Successfully saved selected items');
-                    // После успешного сохранения обновляем состояние с сервера
-                    return itemsApi.getState();
-                })
-                .then(response => {
-                    console.log('Got state after saving:', response?.data?.data);
-                    if (response?.data?.data?.selected) {
-                        setSelectedItems(new Set(response.data.data.selected));
-                    }
-                })
-                .catch(error => {
-                    console.error('Failed to save/update selected items:', error);
-                });
-            
+            selectedArray = Array.from(newSet);
             return newSet;
         });
+
+        try {
+            // Сохраняем на сервере
+            console.log('=== Sending to server:', selectedArray);
+            
+            const saveResponse = await itemsApi.saveSelected(selectedArray);
+            console.log('=== Server response:', saveResponse.data);
+            
+            // Получаем обновленное состояние
+            const stateResponse = await itemsApi.getState();
+            console.log('=== Updated state from server:', stateResponse.data);
+            
+            if (stateResponse?.data?.data?.selected) {
+                setSelectedItems(new Set(stateResponse.data.data.selected));
+                console.log('=== Updated local state with server data');
+            }
+        } catch (error) {
+            console.error('=== Error in toggleItemSelection:', error);
+        }
     }, []);
 
     const handleSelectAll = useCallback(async () => {
