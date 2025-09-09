@@ -3,6 +3,8 @@ import { type ItemsResponse, type StateResponse, type SaveOrderRequest, type Sav
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+console.log('API Version Check - Deploy Time: 2025-09-09 ' + new Date().toISOString());
+
 
 export const itemsApi = {
     // Получение списка элементов с пагинацией и поиском

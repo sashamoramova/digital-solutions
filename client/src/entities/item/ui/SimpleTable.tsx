@@ -122,43 +122,23 @@ export const SimpleTable = ({ pageSize = 20 }: SimpleTableProps) => {
         item.value.toString().includes(searchTerm)
     );
 
-    const toggleItemSelection = useCallback(async (itemId: number) => {
-        console.log('=== Starting toggleItemSelection for item:', itemId);
-        
-        let selectedArray: number[] = [];
-        
-        // Обновляем локальное состояние
+    const toggleItemSelection = useCallback((itemId: number) => {
         setSelectedItems(prev => {
             const newSet = new Set(prev);
             if (newSet.has(itemId)) {
-                console.log('Removing item from selection:', itemId);
                 newSet.delete(itemId);
             } else {
-                console.log('Adding item to selection:', itemId);
                 newSet.add(itemId);
             }
-            selectedArray = Array.from(newSet);
+            
+            // Сохраняем выбранные элементы на сервере
+            const selectedArray = Array.from(newSet);
+            itemsApi.saveSelected(selectedArray).catch(error => {
+                console.error('Failed to save selected items:', error);
+            });
+            
             return newSet;
         });
-
-        try {
-            // Сохраняем на сервере
-            console.log('=== Sending to server:', selectedArray);
-            
-            const saveResponse = await itemsApi.saveSelected(selectedArray);
-            console.log('=== Server response:', saveResponse.data);
-            
-            // Получаем обновленное состояние
-            const stateResponse = await itemsApi.getState();
-            console.log('=== Updated state from server:', stateResponse.data);
-            
-            if (stateResponse?.data?.data?.selected) {
-                setSelectedItems(new Set(stateResponse.data.data.selected));
-                console.log('=== Updated local state with server data');
-            }
-        } catch (error) {
-            console.error('=== Error in toggleItemSelection:', error);
-        }
     }, []);
 
     const handleSelectAll = useCallback(async () => {
